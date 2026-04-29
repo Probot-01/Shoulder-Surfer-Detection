@@ -1,0 +1,10 @@
+opencv-python
+ultralytics
+mediapipe
+numpy
+pillow
+torch
+torchvision
+matplotlib
+scikit-learn
+mss
