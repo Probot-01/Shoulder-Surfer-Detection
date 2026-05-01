@@ -40,29 +40,30 @@ class ThreatDecisionEngine:
     Making cooldown_frames  larger   → slower to clear  (persistent alerts)
     """
 
-    def __init__(self, threat_threshold=10, cooldown_frames=30):
+    def __init__(self, threat_threshold=4, cooldown_frames=20):
         """
         Initialises the engine in a safe, neutral state.
 
         Parameters:
             threat_threshold (int): How many consecutive THREAT frames must
                                     occur before flipping to THREAT state.
-                                    Default 10 ≈ 0.5 seconds at 20 FPS.
+                                    Default 4 ≈ ~65ms at 60 FPS.
+                                    (was 10 — reduced for faster THREAT response)
 
             cooldown_frames  (int): How many consecutive SAFE frames must
                                     occur before returning to SAFE state.
-                                    Default 30 ≈ 1.5 seconds at 20 FPS.
-                                    Longer cooldown = alert lingers longer
-                                    after the observer looks away.
-        """
+                                    Default 20 ≈ ~330ms at 60 FPS.
+                                    (was 30 — reduced for faster SAFE recovery)
+        ""
 
         # Store the thresholds for use in update()
         self.threat_threshold = threat_threshold
         self.cooldown_frames  = cooldown_frames
 
         # Minimum confidence a "LOOKING" prediction must have to count as a threat.
-        # Raised to 80 to reduce false positives from uncertain predictions.
-        self.confidence_threshold = 80.0
+        # Lowered to 75 for slightly faster response; still filters weak predictions.
+        # (was 80.0 — reduced to improve sensitivity without too many false positives)
+        self.confidence_threshold = 75.0
 
         # --- Internal counters (the heart of temporal smoothing) ---
         # These increment/reset every frame to track how long each state has held
@@ -179,9 +180,10 @@ class ThreatDecisionEngine:
                     # → reset their streak back to zero
                     self.observer_looking_streak[i] = 0
 
-                # 5 consecutive frames of confirmed LOOKING = real threat
-                # (at ~20 FPS this is ≈ 0.25 seconds of sustained staring)
-                if self.observer_looking_streak[i] >= 5:
+                # 3 consecutive frames of confirmed LOOKING = real threat.
+                # (was 5 — reduced so THREAT triggers ~40% faster)
+                # At 60 FPS with pose_interval=3: 3 pose-frames = ~150ms of staring
+                if self.observer_looking_streak[i] >= 3:
                     this_frame = "THREAT"
                     break   # One confirmed streaking observer is enough
 

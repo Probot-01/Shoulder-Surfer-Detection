@@ -273,8 +273,8 @@ class HeadPosePredictor:
         #   probs [0.80, 0.20] → gap = -0.60 → clearly NOT_LOOKING ✅
         gap = prob_looking - prob_not_looking
 
-        if gap >= 0.30:
-            # Strong positive gap → model is confident the face is LOOKING
+        if gap >= 0.25:   # was 0.30 — lowered for faster THREAT response
+            # Positive gap ≥ 0.25 → model is confident the face is LOOKING
             label      = "LOOKING"
             is_looking = True
             confidence = prob_looking * 100
