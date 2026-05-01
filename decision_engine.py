@@ -54,7 +54,7 @@ class ThreatDecisionEngine:
                                     occur before returning to SAFE state.
                                     Default 20 ≈ ~330ms at 60 FPS.
                                     (was 30 — reduced for faster SAFE recovery)
-        ""
+        """
 
         # Store the thresholds for use in update()
         self.threat_threshold = threat_threshold
